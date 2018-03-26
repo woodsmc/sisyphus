@@ -24,8 +24,11 @@
    
 **/
 
+const delay = require('delay');
 var client_io = require('socket.io-client');
+Q = require('q');
 var importedSis = require('../../sis/sisyphus');
+
 
 var $sis = importedSis.$sis;
 
@@ -36,17 +39,37 @@ $sis.configureAsClient( {
 	}, ["http://192.168.1.6/"], client_io);
 
 var tempsource = new $sis.MetaData({
+	ServiceType : "Sensor",
 	Sensor : "Temp",
 	Location : "Home-Study"	
+	}, $sis.NodeType.GATEWAY);
+
+
+
+
+console.log("waiting for the connections to stablise...");
+
+
+
+delay(2000).then(() => {
+	console.log("now requesting the temp from the Sisyphus framework");
+	$sis.task( function(){
+		var path = require('path');
+		var fs = require('fs');
+		var directory = path.join( path.dirname(fs.realpathSync(__filename)), '../examples/pi_sensehat');
+		const sense_hat = require(directory + '/sensehat');
+		var currentTemp = sense_hat.getTemp();
+		var now = new Date().getTime();
+		var retval = {
+			temp : currentTemp,
+			time : now
+		};
+		return retval;
+	}, tempsource ).then(function(result){
+		var time = new Date( result.time ).toUTCString();
+		console.log("-----------------------------------------------------------------------");
+		console.log("pi informs me that the temp it see's is " + result.temp + " on  " + time);
+		process.exit(0);
 	});
-
-
-
-$sis.task( function(){
-	const sense_hat = require('./sensehat');
-	var temp = sense_hat.getTemp();
-	return temp
-}, tempsource ).then(function(result){
-	console.log("pi informs me that the temp it see's is:" + result);
 });
 

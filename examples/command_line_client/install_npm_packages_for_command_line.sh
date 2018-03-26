@@ -12,4 +12,7 @@ npm install socket.io-client --save
 print "Installing Q, for node"
 npm install q --save
 
+print "Installing delay, for node"
+npm install delay --save
+
 
