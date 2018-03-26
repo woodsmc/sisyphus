@@ -5,11 +5,11 @@ function print {
 }
 
 print "Install express" 
-sudo npm install express
+npm install express --save
 print "Install socket.io"
-sudo npm install socket.io
-sudo npm install socket.io-client
+npm install socket.io --save
+npm install socket.io-client --save
 print "Installing Q, for node"
-sudo npm install q
+npm install q --save
 
 

@@ -42,9 +42,15 @@
    
 **/
 
+var express = require('express');
+var http = require('http');
+var app = express();
+var server = http.createServer(app);
 var io = require('socket.io').listen(server);
 var ioclient = require('socket.io-client');
+var path = require('path');
 var ipaddresses = require('./getlocalip');
+
 var importedSis = require('../../sis/sisyphus');
 var $sis = importedSis.$sis;
 
@@ -56,4 +62,12 @@ if ( process.argv.length == 3 ) {
 	myIP = process.argv[2]; //"pint.dyndns.info";
 }
 
-$sis.configureAsGateway( { gateway : "node" }, "http://" + myIP + "/", [], io, ioclient );
+var node_metadata = {
+	ServiceType : "DataBase",
+	DBType : "MongoDB",
+	HostCloud : "AWS-Dub" };
+
+$sis.configureAsGateway( node_metadata, "http://" + myIP + "/", [], io, ioclient );
+
+server.listen(80);
+
