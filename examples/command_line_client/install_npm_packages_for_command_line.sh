@@ -12,6 +12,4 @@ npm install socket.io-client --save
 print "Installing Q, for node"
 npm install q --save
 
-print "Installing mongodb for node"
-npm install mongodb --save
 

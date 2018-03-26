@@ -46,7 +46,7 @@ $sis.task( function(){
 	const sense_hat = require('./sensehat');
 	var temp = sense_hat.getTemp();
 	return temp
-}, to_pi ).then(function(result){
+}, tempsource ).then(function(result){
 	console.log("pi informs me that the temp it see's is:" + result);
 });
 

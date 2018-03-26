@@ -50,5 +50,5 @@ function print_title {
 
 print_title
 
-sudo nodejs ./command_line.js
+nodejs ./command_line.js
 
