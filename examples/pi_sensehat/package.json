@@ -1,0 +1,12 @@
+{
+  "name": "pi_sensehat",
+  "version": "1.0.0",
+  "description": "Sisyphus node running on a pi, reading temp from sensehat",
+  "main": "testpi.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "chris.woods@mind-flip.com",
+  "license": "Apache2"
+}
