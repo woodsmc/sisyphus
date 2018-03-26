@@ -1,0 +1,211 @@
+<!--
+   (c) Copyright 2013 Intel Performance Learning Solutions Ltd, Intel Corporation
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   
+ In addition to the Apache License, Version 2.0, please note that:
+ This software is subject to the U.S. Export Administration Regulations
+ and other U.S. law, and may not be exported or re-exported to certain
+ countries (Cuba, Iran, North Korea, Sudan, and Syria) or to persons or
+ entities prohibited from receiving U.S. exports (including Denied Parties,
+ Specially Designated Nationals, and entities on the Bureau of Export 
+ Administration Entity List or involved with missile technology or nuclear,
+ chemical or biological weapons).
+   
+-->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Sisyphus 2 - The Test</title>
+<meta name="" content="">
+<script src="jquery.js"></script>
+<script src="q.js"></script>
+<script src="sisyphus.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="outputwindow.js"></script>
+
+    <style>
+
+#topbox {
+width:100%;
+overflow:hidden;
+}
+        
+      #output {
+            background-color:black;
+            color:white;
+            margin:1em;
+            padding:0.3em;
+            font-family:monospace;
+            width:40%;
+            float:left;
+            height:20em;
+            overflow:scroll;
+        }        
+
+        ul {
+        	margin-left: 1em;
+        }
+
+    </style>
+
+</head>
+<body>
+<h1>Sisyphus 2 - The Test</h1>
+<div id="topbox">
+<div id="output"></div>
+<div id="input">
+	Who are you: <textarea id="myname">Me</textarea><button onclick="updatename();">Change Name</button>
+	Message: <textarea id="inmessage"></textarea>
+	<button onclick="sendMessageToAll();">Send Message</button>
+	<button onclick="msghandlerLots();">Send 20 x Message</button>
+	<button onclick="get_pi_temp();">Get Temp from Pi</button>
+</div>
+</div>
+<hr/>
+<h3>Other nodes visible right now:</h3>
+<ul id="others">
+</ul>
+
+<script>
+	var out = null;
+	
+	var to_pi = new $sis.MetaData({
+		raspberry: "pi"
+	});
+	
+	to_pi.nodeType = null;
+	
+	var destinationIsEveryone = new $sis.MetaData({
+		accept_all_messages: true
+	});
+	destinationIsEveryone.nodeType = null; // no node type... 
+	
+	$sis.configureAsClient({
+		accept_all_messages: true,
+		person : "me"
+	}, [ document.location.toString() ]);
+	
+	$sis.notifyOnKnownHostChanges( updateknownHosts );
+	
+	function message(msg) {
+		out.print(msg);
+	}
+	
+	function updatename() {
+		var name = document.getElementById("myname").value;
+		$sis.updateMyMetaData( {
+			accept_all_messages: true,
+			person : name
+		});
+	}
+	
+	function msghandlerLots() {
+		for(var i = 0; i < 20; i++) {
+			msghandler();
+		}
+	}
+	
+	function msghandler() {
+		var msg = document.getElementById("inmessage").value;
+		$sis.fireTask(message, destinationIsEveryone, msg);
+	}
+	
+	function sendMessageToAll() {
+		var msg = document.getElementById("inmessage").value;
+		$sis.fireTaskToAllMatching(message, destinationIsEveryone, msg);
+	}
+	
+	function updateknownHosts(hosts) {
+		var str = "";
+		for (var j = 0 ; j < hosts.length; j++) {
+			var host = hosts[j];
+			str += "<li>" + host.guid;
+			if( host.guid == $sis.myMetaData.guid )
+				str += " <span style='color:red'>(me!)</span>";
+			str += "<ul>";
+			str += "<li> URL: " + host.url + "</li>";
+			str += "<li> extended:";
+			str += "<ul>";
+			var keys = Object.keys(host.extended);
+			for(var i = 0; i < keys.length; i++) {
+				str +="<li>" + keys[i] + " : " + host.extended[ keys[i] ] + "</li>";
+			}
+			str += "</ul>";
+			str += "</li>"
+			str += "</ul>";
+			str += "</li>";
+		
+		}
+/*
+		hosts.forall( function(host, primarykey, i, j) {
+			str += "<li>" + host.guid;
+			if( host.guid == $sis.myMetaData.guid )
+				str += " <span style='color:red'>(me!)</span>";
+			str += "<ul>";
+			str += "<li> URL: " + host.url + "</li>";
+			str += "<li> extended:";
+			str += "<ul>";
+			var keys = Object.keys(host.extended);
+			for(var i = 0; i < keys.length; i++) {
+				str +="<li>" + keys[i] + " : " + host.extended[ keys[i] ] + "</li>";
+			}
+			str += "</ul>";
+			str += "</li>"
+			str += "</ul>";
+			str += "</li>";
+		});
+*/
+		$("#others").html(str);
+	}
+	
+	function get_pi_temp()
+	{
+		$sis.task( function(){
+			const sense_hat = require('/home/pi/cdi/connecteddeviceinterface-code/testing/sisyphus_testing/sensehat');
+			var temp = sense_hat.getTemp();
+			return temp;
+		}, to_pi ).then(function(result){
+			out.print("pi informs me that the temp it see's is:" + result);
+		});
+	}
+	
+	$(document).ready(function(){
+		out = new OutputWindow("output");
+		out.print("up and ready");
+		out.print("Sisyphus is up with a " + $sis.myMetaData.nodeType + " and guid:" + $sis.myMetaData.guid);
+		out.print("With extended data :" + JSON.stringify( $sis.myMetaData.extended ) );
+		$sis.task( function(data){
+			out.print("");
+			out.print("Oh eck.. I'm a job");
+			out.print("and I'm showing [" + data + "]" );
+			out.print("");
+			
+			$sis.fireTask(function (data) {
+				out.print("this is a fired task and it (" + data + ")");
+			}, $sis.myMetaData, "is one way");
+			
+			return "I'm done";
+			}, $sis.myMetaData, "this string")
+		.then(function(result) {
+			out.print("notification received: " + result);
+		});
+	});
+	
+	
+	
+</script>
+
+</body>
+</html>
