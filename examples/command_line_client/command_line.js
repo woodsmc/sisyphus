@@ -25,7 +25,6 @@
 **/
 
 var client_io = require('socket.io-client');
-Q = require('Q');
 var importedSis = require('../../sis/sisyphus');
 
 var $sis = importedSis.$sis;
@@ -37,22 +36,17 @@ $sis.configureAsClient( {
 	}, ["http://192.168.1.6/"], client_io);
 
 var tempsource = new $sis.MetaData({
-		accept_all_messages: true
+	Sensor : "Temp",
+	Location : "Home-Study"	
 	});
 
 
 
-$sis.notifyOnKnownHostChanges( function (hosts) {
-	console.log("notified of host changes : " + hosts.legnth);
-
-	if ( hosts.length > 1 ) {
-		console.log("sending message");
-		$sis.fireTaskToAllMatching(message, destinationIsEveryone, "linux client hello world message");
-		console.log("message sent");
-	}
+$sis.task( function(){
+	const sense_hat = require('./sensehat');
+	var temp = sense_hat.getTemp();
+	return temp
+}, to_pi ).then(function(result){
+	console.log("pi informs me that the temp it see's is:" + result);
 });
-
-
-
-
 
