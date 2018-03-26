@@ -50,5 +50,5 @@ function print_title {
 
 print_title
 
-node ./testpi.js
+node ./pi.js
 
