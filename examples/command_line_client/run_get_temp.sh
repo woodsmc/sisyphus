@@ -50,5 +50,5 @@ function print_title {
 
 print_title
 
-nodejs ./command_line.js
+nodejs ./command_line_get_temp.js
 

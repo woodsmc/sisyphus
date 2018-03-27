@@ -922,6 +922,42 @@ $sis = function(){
 	}	
 
 	function Job(fnct, metadata, payload, fireandforget) {
+				
+		function ResponseHandler(jobToHandle) {
+			
+			function sendResponse(job, response) {
+				if ( !job.fireandforget ) {
+					console.log("this job need a response");
+					// send response back...
+					var notify = new Notification(job.jobGuid, job.originatingMetaData, response);
+					if (notify.isForMe()) {
+						console.log("response is addressed to me... ");
+						notificationQueue.push(notify);
+						console.log("pushed locally");
+					}else {
+						console.log("response is addressed to someone else... ");
+						var msg = {
+							type : messageTypeIs.NOTIFICATION,
+							message : notify
+						};
+						outgoingQueue.push(msg);
+					}
+				}		
+			}			
+			
+			this.job = jobToHandle;
+			this.delayResponse = false;
+			this.respond = function(response) {
+				sendResponse(this.job, response);
+			};
+			this.automaticResponse = function(response) {
+				if ( !this.delayResponse ) {
+					sendResponse(this.job, response);
+				}
+			}
+		}
+		
+
 		console.log("new Job");
 		this.originator = jobCameFrom.ME;
 		this.jobGuid = generateGUID();
@@ -931,6 +967,7 @@ $sis = function(){
 		this.fireandforget = fireandforget;
 		this.fnct = fnct.toString();
 		this.execute = function() {
+			var responseHandler = new ResponseHanlder(this);
 			var functionToCall = null;
 			var string = "functionToCall = " + this.fnct;
 			eval(string);
@@ -938,7 +975,7 @@ $sis = function(){
 			
 			try {
 				console.log("trying to execute job:");
-				response = functionToCall(this.payload, this.originatingMetaData);	
+				response = functionToCall(this.payload, this.originatingMetaData, responseHandler);	
 				console.log("job executed.");
 			} catch(err) {
 				console.log("error executing job:");
@@ -947,23 +984,7 @@ $sis = function(){
 				console.log("continuing with execution, response is null");
 			}
 			
-			if ( !this.fireandforget ) {
-				console.log("this job need a response");
-				// send response back...
-				var notify = new Notification(this.jobGuid, this.originatingMetaData, response);
-				if (notify.isForMe()) {
-					console.log("response is addressed to me... ");
-					notificationQueue.push(notify);
-					console.log("pushed locally");
-				}else {
-					console.log("response is addressed to someone else... ");
-					var msg = {
-						type : messageTypeIs.NOTIFICATION,
-						message : notify
-					};
-					outgoingQueue.push(msg);
-				}
-			}
+			responseHandler.automaticResponse(response);
 		};
 		
 		this.isAddressedToMe = function() {
