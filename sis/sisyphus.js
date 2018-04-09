@@ -1,4 +1,20 @@
 /**
+   (c) Copyright 2018 Mind-Flip Limited
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+   
+**/
+/**
    (c) Copyright 2013 Intel Performance Learning Solutions Ltd, Intel Corporation
 
    Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,6 +32,7 @@
 
 
 $sis = function(){
+	var Q = require('q');
 	var $sis = { };
 	
 	var resultIs = {
@@ -923,8 +940,7 @@ $sis = function(){
 
 	function Job(fnct, metadata, payload, fireandforget) {
 				
-		function ResponseHandler(jobToHandle) {
-			
+		function ResponseHandler(jobToHandle) {			
 			function sendResponse(job, response) {
 				if ( !job.fireandforget ) {
 					console.log("this job need a response");
@@ -967,7 +983,7 @@ $sis = function(){
 		this.fireandforget = fireandforget;
 		this.fnct = fnct.toString();
 		this.execute = function() {
-			var responseHandler = new ResponseHanlder(this);
+			var responseHandler = new ResponseHandler(this);
 			var functionToCall = null;
 			var string = "functionToCall = " + this.fnct;
 			eval(string);
@@ -979,6 +995,7 @@ $sis = function(){
 				console.log("job executed.");
 			} catch(err) {
 				console.log("error executing job:");
+				responseHandler.delayResponse = false; // override to send erro response back
 				response = null;
 				console.log(err);
 				console.log("continuing with execution, response is null");
@@ -1192,6 +1209,7 @@ $sis = function(){
 	var outgoingQueue = new Queue(processOutgoingItem);
 	
 	$sis.task = function(func, metadata, payload) {
+		// TODO: Defensive checking of function arguments here
 		var deferred = Q.defer();
 		var job = new Job(func, metadata, payload, false);
 		notificationList.store(job, deferred);
@@ -1200,11 +1218,13 @@ $sis = function(){
 	}
 	
 	$sis.fireTask = function(func, metadata, payload) {
+		// TODO: Defensive checking of function arguments here
 		var job = new Job(func, metadata, payload, true);		
 		processJob(job);
 	}
 	
 	$sis.fireTaskToAllMatching = function(func, metadata, payload) {
+		// TODO: Defensive checking of function arguments here
 		knownHosts.forall(function(host){
 			if ( host.subsetMatch(metadata) ) {
 				var job = new Job(func, host, payload, true);

@@ -43,17 +43,16 @@ var tempsource = new $sis.MetaData({
 	Sensor : "Temp",
 	Location : "Home-Study"	
 	}, $sis.NodeType.GATEWAY);
+	
 
-
-
-
-console.log("waiting for the connections to stablise...");
-
-
-
-delay(2000).then(() => {
-	console.log("now requesting the temp from the Sisyphus framework");
-	$sis.task( function(){
+function issue_get_temp_request() {
+	var tempsource = new $sis.MetaData({
+		ServiceType : "Sensor",
+		Sensor : "Temp",
+		Location : "Home-Study"	
+		}, $sis.NodeType.GATEWAY);	
+	
+	function get_temp() {
 		var path = require('path');
 		var fs = require('fs');
 		var directory = path.join( path.dirname(fs.realpathSync(__filename)), '../examples/pi_sensehat');
@@ -64,12 +63,28 @@ delay(2000).then(() => {
 			temp : currentTemp,
 			time : now
 		};
-		return retval;
-	}, tempsource ).then(function(result){
+		return retval;		
+	}
+	
+	return $sis.task( get_temp, tempsource);		
+}
+
+
+
+
+console.log("waiting for the connections to stablise...");
+
+
+
+delay(2000).then(() => {
+	console.log("now requesting the temp from the Sisyphus framework");
+	
+	issue_get_temp_request().then( function(result){
 		var time = new Date( result.time ).toUTCString();
 		console.log("-----------------------------------------------------------------------");
 		console.log("pi informs me that the temp it see's is " + result.temp + " on  " + time);
-		process.exit(0);
+		process.exit(0);		
 	});
+	
 });
 
