@@ -46,10 +46,10 @@ $sis = function(){
 		var onpushFunction = onpush;
 		var me = this;
 		this.push = function(item) {
-			console.log("Queue.push");
+			//console.log("Queue.push");
 			this.q.push(item);
 			if ( onpushFunction != null ) {
-				console.log("onpushFunction is not null.. invoking");
+				//console.log("onpushFunction is not null.. invoking");
 				setTimeout(function() {
 					onpushFunction(me);	
 				}, 1);
@@ -57,7 +57,7 @@ $sis = function(){
 		};
 		
 		this.pop = function() {
-			console.log("pop");
+			//console.log("pop");
 			var item = this.q.pop();
 			return item;
 		};
@@ -88,7 +88,7 @@ $sis = function(){
 	
 	function deserialise_MetaData(obj) {
 		var retval = new MetaData();
-		console.log("deserialise_MetaData:");
+		//console.log("deserialise_MetaData:");
 		for (var property in obj ) {
 			switch(property) {
 				case '_guid':
@@ -96,11 +96,11 @@ $sis = function(){
 				case 'nodeType':
 				case 'extended':
 					retval[property] = obj[property];
-					console.log(" ->" + property + " = " + obj[property]);
+					//console.log(" ->" + property + " = " + obj[property]);
 				break;
 			}
 		}
-		console.log("finished metadata");
+		//console.log("finished metadata");
 		return retval;
 	}
 	
@@ -152,20 +152,20 @@ $sis = function(){
 		}
 		
 		this.storageKey = function() {
-			console.log("storageKey for (" + this.url +")(" + this.guid + ")");
+			//console.log("storageKey for (" + this.url +")(" + this.guid + ")");
 			var retval = null;
 			if ( this.guid == $sis.myMetaData.guid && this.url == null) {
 				retval = "http://null";
 			} else if ( this.url != null ) {
-				console.log("url is not present, or is the default URL");
+				//console.log("url is not present, or is the default URL");
 				retval = this.url; 
 			} else if ( this.guid != null ) {
-				console.log("guid is present,  using this as key");
+				//console.log("guid is present,  using this as key");
 				retval = this.guid;
 			}else {
-				console.log("warning, connection's storage key is not available ... !!!!");
+				//console.log("warning, connection's storage key is not available ... !!!!");
 			}
-			console.log("storage key is[" + retval + "]");
+			//console.log("storage key is[" + retval + "]");
 			return retval;
 		}
 		
@@ -184,16 +184,16 @@ $sis = function(){
 		}
 		
 		this.subsetMatch = function(metadata) {
-			console.log("subset match this : " + JSON.stringify( this ) );
-			console.log("subset match that : " + JSON.stringify( metadata ) );
+			//console.log("subset match this : " + JSON.stringify( this ) );
+			//console.log("subset match that : " + JSON.stringify( metadata ) );
 			
 			var retval = false;
 			if ( this.guid != null && metadata.guid != null) {
-				console.log("doing GUID compare");
+				//console.log("doing GUID compare");
 				return (this.guid === metadata.guid);
 			}
 			if ( this.nodeType != null && metadata.nodeType != null ){
-				console.log("doing nodeType compare");
+				//console.log("doing nodeType compare");
 				retval = (this.nodeType === metadata.nodeType);
 				if ( retval == false ) return false;
 			}
@@ -215,7 +215,7 @@ $sis = function(){
 				}
 			}
 			if ( Object.keys(metadata.extended).length > 0 )
-				console.log("comparing extended data... ");
+				//console.log("comparing extended data... ");
 				retval = compareObjects(metadata.extended, this.extended);
 				
 			return retval;
@@ -279,18 +279,18 @@ $sis = function(){
 		}
 		
 		this.populateWithKnownUrl = function(metadata) {
-			console.log("populateWithKnownUrl");
+			//console.log("populateWithKnownUrl");
 			var max = this.length();
 			for( var i = 0; i < max; i++ ) {
 				var item = this.item(i);
 				if ( item.guid === metadata.guid ) {
 					metadata.url = item.url;
-					console.log("found and populated with url");
+					//console.log("found and populated with url");
 					break;
 				}				
 			}
 			
-			console.log("finished : populateWithKnownUrl");
+			//console.log("finished : populateWithKnownUrl");
 		}
 
 		this.findCapableHost = function(metadata) {
@@ -309,7 +309,7 @@ $sis = function(){
 		}
 		
 		this.findCapableHostOtherThanOriginator = function(job) {
-			console.log("findCapableHostOtherThanOriginator for job from:" + job.originatingMetaData.guid);
+			//console.log("findCapableHostOtherThanOriginator for job from:" + job.originatingMetaData.guid);
 			var retval = null;
 			var keys = Object.keys(_knownHosts);
 			for(var i = 0; i < keys.length; i++) {
@@ -373,13 +373,13 @@ $sis = function(){
 		}
 		
 		this.deleteHost = function(metadata) { // there is a duplication of functionality here... 
-			console.log("known hosts deleting host details for " + metadata.guid);
+			//console.log("known hosts deleting host details for " + metadata.guid);
 			var keyToDelete = metadata.storageKey();
 			var removed = false;
 			if ( keyToDelete != null ) {
-				console.log("got storagekey to delete:" + keyToDelete);
+				//console.log("got storagekey to delete:" + keyToDelete);
 				if ( keyToDelete in _knownHosts ) {
-					console.log("deleting key")
+					//console.log("deleting key")
 					delete _knownHosts[keyToDelete];
 					removed = true;
 				}
@@ -388,7 +388,7 @@ $sis = function(){
 			
 			if ( !removed) {
 				keyToDelete = null;
-				console.log("looks like we've not found the item to delete it");
+				//console.log("looks like we've not found the item to delete it");
 				
 				if ( metadata.guid != null ) {
 					keyToDelete = getPrimaryKeyForItemWith("guid", metadata.guid);
@@ -422,12 +422,12 @@ $sis = function(){
 			
 			if ( metadata.length > 0) {			
 				var key = metadata[0].storageKey();
-				console.log("knownhosts upsert:" + key);
+				//console.log("knownhosts upsert:" + key);
 				if ( key != null ) {
 					_knownHosts[key] = metadata; // assuming metadata is an array				
 					stored = true;
 				} else {
-					console.log("unable to update knownhosts with array of meta data - no key available");
+					//console.log("unable to update knownhosts with array of meta data - no key available");
 				}
 			}
 			
@@ -444,11 +444,11 @@ $sis = function(){
 		}
 
 		this.getLocalVersionOfMetadata = function(metadata) {
-			console.log("getLocalVersionOfMetadata");
-			console.log("received metadata URL(" + metadata.url + ") GUID:" + metadata.guid );
+			//console.log("getLocalVersionOfMetadata");
+			//console.log("received metadata URL(" + metadata.url + ") GUID:" + metadata.guid );
 			var retval = metadata;
 			if ( metadata.guid != null ) {
-				console.log("metadata.guid is not null!");
+				//console.log("metadata.guid is not null!");
 				var keys = Object.keys(_knownHosts);
 				for(var i = 0; i < keys.length; i++) {
 					for( var j = 0; j < _knownHosts[keys[i]].length; j++ ) {
@@ -479,7 +479,7 @@ $sis = function(){
 		}
 		
 		this.signal = function(notification) {
-			//console.log("signal invoked for notification:" + JSON.stringify(notification));
+			////console.log("signal invoked for notification:" + JSON.stringify(notification));
 			if ( notification.jobGuid in list ) {
 				var indextoRemove = -1;
 				for(var i = 0; i < list.length; i++) {
@@ -494,7 +494,7 @@ $sis = function(){
 				
 				// remove item from array///
 				list.splice(indextoRemove, 1);
-				//console.log("invoking call back with(" + notification.payload + ")");
+				////console.log("invoking call back with(" + notification.payload + ")");
 				deferred.resolve(notification.payload);
 			}
 		}
@@ -503,7 +503,7 @@ $sis = function(){
 	/*Assumes presences of socket.io*/
 	
 	function CommunicationManager(onJob, onNotification, knownHosts){
-		console.log("creating communication manager");
+		//console.log("creating communication manager");
 		var WHY_CLIENT_HELLO = "why client hello";
 		var ABOUTME = "aboutme";
 		var _knownHosts = knownHosts;
@@ -517,15 +517,15 @@ $sis = function(){
 		
 
 		if ( typeof(window) != 'undefined' ) {
-			console.log("configuring as a browser element");
+			//console.log("configuring as a browser element");
 			io.client = window.io;
 		} else {
-			console.log("configuring as a node element");
+			//console.log("configuring as a node element");
 		}
 		
 		
 		function Message(type, payload) {
-			console.log("creatign new message, type " + type)
+			//console.log("creatign new message, type " + type)
 			this.type = type;
 			this.payload = payload;
 		}
@@ -533,35 +533,36 @@ $sis = function(){
 		var liveconnections = new Array();
 	
 		function storeConnection(socket, metadata){ // upsert
-			console.log("storing connection for url[" + metadata.url + "] >" + metadata.guid );
+			//console.log("storing connection for url[" + metadata.url + "] >" + metadata.guid );
 			var key = metadata.storageKey();
-			if ( key != null )
+			if ( key != null ) {
 				liveconnections[key] = socket;
-			else
-				console.log("warning, connection cannot be stored!!!!")
+			} else {
+				//console.log("warning, connection cannot be stored!!!!")
+			}
 		}
 		
 		function findConnection(metadata) {
-			console.log("searching for an active connection to url[" + metadata.url + "] >" + metadata.guid );
+			//console.log("searching for an active connection to url[" + metadata.url + "] >" + metadata.guid );
 			var retval = null;
 			if ( metadata.url != "http://null" && metadata.url != null ) {
 				if ( metadata.url in liveconnections ) {
-					console.log("found active connection for " + metadata.url);
+					//console.log("found active connection for " + metadata.url);
 					retval = liveconnections[metadata.url];
 				}
 			} else if ( metadata.guid != null ) {
 				if( metadata.guid in liveconnections ) {
-					console.log("found connection for " + metadata.guid );
+					//console.log("found connection for " + metadata.guid );
 					retval = liveconnections[metadata.guid];
 				} else {
-					console.log("I've not found a connection");
+					//console.log("I've not found a connection");
 				}
 			}
 			return retval;
 		}
 		
 		function removeConnection(metadata) {
-			console.log("removeConnection");
+			//console.log("removeConnection");
 			var keyToDelete = metadata.storageKey();
 			if (keyToDelete in liveconnections ) {
 				delete liveconnections[keyToDelete];
@@ -569,7 +570,7 @@ $sis = function(){
 		}
 		
 		function generateArrayOfMyMetaData(destinationMetadata) {
-			console.log("generateArrayOfMyMetaData");
+			//console.log("generateArrayOfMyMetaData");
 			var retval = new Array();
 			switch ( $sis. myMetaData.nodeType ) {
 				case $sis.NodeType.CLIENT:
@@ -608,7 +609,7 @@ $sis = function(){
 		}
 		
 		function handleArrayOfReceivedMetaData(data) {
-			console.log("handleArrayOfReceivedMetaData");
+			//console.log("handleArrayOfReceivedMetaData");
 			var retval= new Array();
 			for (var i = 0; i < data.length; i++) {
 				var metadata = deserialise_MetaData(data[i]);
@@ -618,33 +619,33 @@ $sis = function(){
 		}
 		
 		function job_handler(data) {
-			console.log("job_handler");
-			console.log("received JOB!");
+			//console.log("job_handler");
+			//console.log("received JOB!");
 			if ( _onJob != null ) {
-				console.log("handler available - sending for processing");
+				//console.log("handler available - sending for processing");
 				var job = deserialise_Job(data);
 				job.destinationMetaData = knownHosts.getLocalVersionOfMetadata(job.destinationMetaData);
 				_onJob(job);
 			} else {
-				console.log("no handler is registered for processing job");
+				//console.log("no handler is registered for processing job");
 			}
 		}
 		
 		function notification_handler(data) {
-			console.log("notificaiton_handler");
-			console.log("received Notification : " + JSON.stringify(data));
+			//console.log("notificaiton_handler");
+			//console.log("received Notification : " + JSON.stringify(data));
 			
 			if ( _onNotification != null ) {
-				console.log("handler available - sending for processing");
+				//console.log("handler available - sending for processing");
 				var notification = deserialise_Notification(data);
 				_onNotification(notification);
 			} else {
-				console.log("no handler is registered for processing notification");
+				//console.log("no handler is registered for processing notification");
 			}
 		}
 		
 		function client_handle_why_client_hello(data, socket) {
-			console.log("as a client I've just received about me info from a node or gateway - processing it here") ;
+			//console.log("as a client I've just received about me info from a node or gateway - processing it here") ;
 			var receivedMetaData = handleArrayOfReceivedMetaData(data);
 			knownHosts.upsert(receivedMetaData);
 			// I do not update liveconnections - as it will already be assigned the url from which I've received this data			
@@ -652,7 +653,7 @@ $sis = function(){
 		}
 
 		function client_handle_aboutme(data, socket) {
-			console.log("as a client I've just received about me info from a node or gateway - processing it here") ;
+			//console.log("as a client I've just received about me info from a node or gateway - processing it here") ;
 			var receivedMetaData = handleArrayOfReceivedMetaData(data);
 			knownHosts.upsert(receivedMetaData);
 			// I do not update liveconnections - as it will already be assigned the url from which I've received this data			
@@ -660,9 +661,9 @@ $sis = function(){
 		}		
 		
 		function server_handle_aboutme(data, socket) {
-			console.log("As a server I've just received about me info");
+			//console.log("As a server I've just received about me info");
 			// we can record the connection here too
-			console.log("recording connection in live connections");
+			//console.log("recording connection in live connections");
 			var receivedMetaData = handleArrayOfReceivedMetaData(data);
 			storeConnection(socket, receivedMetaData[0]);
 			knownHosts.upsert(receivedMetaData);
@@ -671,66 +672,66 @@ $sis = function(){
 		}
 		
 		function send_aboutme(socket, metadata) {
-			console.log("send_aboutme");
+			//console.log("send_aboutme");
 			if ( metadata != null ) {
-				console.log("sening about me information to " + metadata.guid)	;			} else {
-				console.log("sending about me information to an unknown connection...");
+				//console.log("sening about me information to " + metadata.guid)	;			} else {
+				//console.log("sending about me information to an unknown connection...");
 			}
 			
 			var dataToSend = generateArrayOfMyMetaData(metadata);
 			socket.emit(ABOUTME, dataToSend);
-			console.log("about me sent");
+			//console.log("about me sent");
 		}
 
 		function send_why_client_hello(socket, metadata) {
-			console.log("send_why_client_hello");
+			//console.log("send_why_client_hello");
 			if ( metadata != null ) {
-				console.log("sening about me information to " + metadata.guid)	;			} else {
-				console.log("sending about me information to an unknown connection...");
+				//console.log("sening about me information to " + metadata.guid)	;			} else {
+				//console.log("sending about me information to an unknown connection...");
 			}
 			
 			var dataToSend = generateArrayOfMyMetaData(metadata);
 			socket.emit(WHY_CLIENT_HELLO, dataToSend);
-			console.log("about me sent");
+			//console.log("about me sent");
 		}		
 		
 		function handleConnectionDisconnectAndInformOthers(metadata) {
-			console.log( "  handleConnectionDisconnectAndInformOthers" );
+			//console.log( "  handleConnectionDisconnectAndInformOthers" );
 			//todo: remove hosts associated with this socket / guid from our knownhosts and live connections
 			removeConnection(metadata);
 			knownHosts.deleteHost(metadata);
 			// send an about me to anone remaining to let them know about the disconnect and lost of connection
 			knownHosts.forall(function(host){
-				console.log("found :" + host.guid);
+				//console.log("found :" + host.guid);
 				if ( !host.isMe() ) {
-					console.log( host.guid + " should be send an about me message");
+					//console.log( host.guid + " should be send an about me message");
 					sendAboutMeMessageTo(host);
-					console.log("about message sent");
+					//console.log("about message sent");
 				} else {
 					var str = "";
 					if ( host.isMe() ) str = " me!";
-					console.log(host.guid + " is " + str );
+					//console.log(host.guid + " is " + str );
 				}
 			});		
 		}
 		
 		function handleConnectionDisconnect(metadata) {
 			//todo: remove hosts associated with this socket / guid from our knownhosts and live connections
-			console.log("  handleConnectionDisconnect");
+			//console.log("  handleConnectionDisconnect");
 			removeConnection(metadata);
 			knownHosts.deleteHost(metadata);		
 		}
 		
 		function retryEstablishConnection(metadata, callback, existingSocket) {
-			console.log("retryEstablishConnection");
+			//console.log("retryEstablishConnection");
 			setTimeout(function(){
-				console.log("retryEstablishConnection, timeout expired... ");
+				//console.log("retryEstablishConnection, timeout expired... ");
 				establishConnection(metadata, callback, existingSocket);
 				}, 1000);
 		}
 		
 		function establishConnection(metadata, callback, existingSocket) {
-			console.log("establishing a connection to " + metadata.url);
+			//console.log("establishing a connection to " + metadata.url);
 			var newSocket = true;
 			var socket = null;
 			if ( typeof(existingSocket) != 'undefined') {
@@ -754,7 +755,7 @@ $sis = function(){
 				socket.on(messageTypeIs.JOB, job_handler);
 				socket.on(messageTypeIs.NOTIFICATION, notification_handler);	
 				socket.on('disconnect', function() {
-					console.log("registered a disconnection from : " + metadata.guid);
+					//console.log("registered a disconnection from : " + metadata.guid);
 					switch( $sis.myMetaData.nodeType ) {
 						case $sis.NodeType.CLIENT:							
 							handleConnectionDisconnect(metadata);
@@ -772,13 +773,13 @@ $sis = function(){
 					
 				});
 				socket.on('error', function() {
-					console.log("error connecting to " + metadata.url);
+					//console.log("error connecting to " + metadata.url);
 					retryEstablishConnection(metadata, callback);
 		
 				});
 
 				socket.on('connect_failed', function() {
-					console.log("error connecting to socket " + metadata.url);
+					//console.log("error connecting to socket " + metadata.url);
 					retryEstablishConnection(metadata, callback);
 				});					
 			}
@@ -788,71 +789,71 @@ $sis = function(){
 		
 		// this function sends a message to a client only if it is already connected.. avoiding an about me game of tennis
 		function sendAboutMeMessageTo(metadata) {
-			console.log("sending an about me message");
+			//console.log("sending an about me message");
 			var connection = findConnection(metadata);
 			if (connection != null) {
-				console.log("connection exists sending about me message");
+				//console.log("connection exists sending about me message");
 				send_aboutme(connection, metadata);
 			}
 		}
 
 
 		this.clientUpdateOfAboutmeInfo = function() {
-			console.log("clientUpdateOfAboutmeInfo");
+			//console.log("clientUpdateOfAboutmeInfo");
 			knownHosts.foreachendpoint(function(host){
-				console.log("found :" + host.guid);
+				//console.log("found :" + host.guid);
 				if ( !host.isMe()) {
-					console.log( host.guid + " should be send an about me message");
+					//console.log( host.guid + " should be send an about me message");
 					sendAboutMeMessageTo(host);
-					console.log("about message sent");
+					//console.log("about message sent");
 				} 
 			});			
 		}
 				
 		this.sendMessage = function (metadata, type, message, doneCB) {
-			console.log("sending a message");
-			console.log("checking meta data");
+			//console.log("sending a message");
+			//console.log("checking meta data");
 			if ( metadata.hasGuidButNoUrl() ) {
-				console.log("there is no URL for this destination, and an existing link was not found");
+				//console.log("there is no URL for this destination, and an existing link was not found");
 				_knownHosts.populateWithKnownUrl( metadata );
 			} else {
-				console.log("metadata ok");
+				//console.log("metadata ok");
 			}
 			
 			var connection = findConnection(metadata);
 			if ( connection == null ) {
-				console.log("connection could not be found");				
-				console.log("creating a missing connection");
+				//console.log("connection could not be found");				
+				//console.log("creating a missing connection");
 				connection = establishConnection(metadata, function(result){
 					if ( result == resultIs.OK ) {
-						console.log("connection establoshed, sending message");
+						//console.log("connection establoshed, sending message");
 						connection.emit(type, message);
 					}
 					doneCB(result);
 				});
 			} else {
-				console.log("connection exists sending message");
+				//console.log("connection exists sending message");
 				connection.emit(type, message);
 				doneCB(resultIs.OK);
 			}
 		}
 		
 		this.startConnectionsToKnownHosts = function(socketioclient) {
-			console.log("startConnectionsToKnownHosts");
+			//console.log("startConnectionsToKnownHosts");
 			if ( typeof(socketioclient) != 'undefined' ) {
 				io.client = socketioclient;
 			}
 			
 			var max = knownHosts.length();
-			console.log("startConnectionsToKnownHosts (" + max + ")");
+			//console.log("startConnectionsToKnownHosts (" + max + ")");
 			if ( max > 1 ) {
 				// try to establish connections first, then tell the developer
 				knownHosts.forall(function(host){
-					console.log("host[" + host.guid + "]");
+					//console.log("host[" + host.guid + "]");
 					if ( ! host.isMe() ) {
-						console.log("this host isn't me, creating connection to " + host.url);
+						//console.log("this host isn't me, creating connection to " + host.url);
 						establishConnection(host, function(result) {
-							console.log("connection established to " +  host.url);
+							//console.log("connection established to " +  host.url);
 							// call back...
 							// if ( result == resultIs.OK)
 							
@@ -861,33 +862,33 @@ $sis = function(){
 				});
 			} else {
 				// theer is only one known host, that's us... so just tell the developer what the status is
-				console.log("the only host available is me, not establishing connections");
+				//console.log("the only host available is me, not establishing connections");
 				knownHosts.invokeChangeCallback();	
 			}
 		}
 		
 		this.startReceivingIncomingConnections = function(socketio) {
-			console.log("startReceivingIncomingConnections");
+			//console.log("startReceivingIncomingConnections");
 			io.server = socketio;
 			io.server.sockets.on('connection', function (socket) {
-				console.log("connection received, sending about me");
+				//console.log("connection received, sending about me");
 				var socketsMetaData = null;
 				send_why_client_hello(socket, null);
 				socket.on(ABOUTME, function(data) {
-					console.log("received about me information");
+					//console.log("received about me information");
 					socketsMetaData = server_handle_aboutme(data, socket);
-					console.log("about me information delt with, sending update description of self to everyone else");
+					//console.log("about me information delt with, sending update description of self to everyone else");
 					knownHosts.forall(function(host){
-						console.log("found :" + host.guid);
+						//console.log("found :" + host.guid);
 						if ( !host.isMe() && host.guid != socketsMetaData.guid ) {
-							console.log( host.guid + " should be send an about me message");
+							//console.log( host.guid + " should be send an about me message");
 							sendAboutMeMessageTo(host);
-							console.log("about message sent");
+							//console.log("about message sent");
 						} else {
 							var str = "";
 							if ( host.isMe() ) str = " me!";
 							if ( host.guid == socketsMetaData.guid ) str = " the recently joined dude";
-							console.log(host.guid + " is " + str );
+							//console.log(host.guid + " is " + str );
 						}
 					});
 				});
@@ -913,9 +914,9 @@ $sis = function(){
 	};	
 	
 	function deserialise_Job(obj) {
-		console.log("deserialise_Job");
+		//console.log("deserialise_Job");
 		var retval = new Job(function(){}, null, null, false);
-		console.log("deserialise_Job>");
+		//console.log("deserialise_Job>");
 		for (var property in obj ) {
 			switch(property) {
 				case 'jobGuid':
@@ -923,18 +924,18 @@ $sis = function(){
 				case 'fnct':
 				case 'fireandforget':
 					retval[property] = obj[property];
-					console.log(" ["+property+"]->" + obj[property]);
+					//console.log(" ["+property+"]->" + obj[property]);
 				break;
 				
 				case 'destinationMetaData':
 				case 'originatingMetaData':
-					console.log(" ["+property+"]--->")
+					//console.log(" ["+property+"]--->")
 					retval[property] = deserialise_MetaData(obj[property]);
 				break;
 			}
 		}
 		retval.originator = jobCameFrom.EXTERNAL;
-		console.log("deserialise_Job<");
+		//console.log("deserialise_Job<");
 		return retval;
 	}	
 
@@ -943,15 +944,15 @@ $sis = function(){
 		function ResponseHandler(jobToHandle) {			
 			function sendResponse(job, response) {
 				if ( !job.fireandforget ) {
-					console.log("this job need a response");
+					//console.log("this job need a response");
 					// send response back...
 					var notify = new Notification(job.jobGuid, job.originatingMetaData, response);
 					if (notify.isForMe()) {
-						console.log("response is addressed to me... ");
+						//console.log("response is addressed to me... ");
 						notificationQueue.push(notify);
-						console.log("pushed locally");
+						//console.log("pushed locally");
 					}else {
-						console.log("response is addressed to someone else... ");
+						//console.log("response is addressed to someone else... ");
 						var msg = {
 							type : messageTypeIs.NOTIFICATION,
 							message : notify
@@ -974,7 +975,7 @@ $sis = function(){
 		}
 		
 
-		console.log("new Job");
+		//console.log("new Job");
 		this.originator = jobCameFrom.ME;
 		this.jobGuid = generateGUID();
 		this.payload = payload;
@@ -990,38 +991,38 @@ $sis = function(){
 			var response = null;
 			
 			try {
-				console.log("trying to execute job:");
+				//console.log("trying to execute job:");
 				response = functionToCall(this.payload, this.originatingMetaData, responseHandler);	
-				console.log("job executed.");
+				//console.log("job executed.");
 			} catch(err) {
-				console.log("error executing job:");
+				//console.log("error executing job:");
 				responseHandler.delayResponse = false; // override to send erro response back
 				response = null;
-				console.log(err);
-				console.log("continuing with execution, response is null");
+				//console.log(err);
+				//console.log("continuing with execution, response is null");
 			}
 			
 			responseHandler.automaticResponse(response);
 		};
 		
 		this.isAddressedToMe = function() {
-			console.log("isAddressedToMe");
+			//console.log("isAddressedToMe");
 			return (this.destinationMetaData.guid == $sis.myMetaData.guid);
 		};
 		
 		this.isAddressedToSomeoneElse = function() {
-			console.log("isAddressedToSomeoneElse");
+			//console.log("isAddressedToSomeoneElse");
 			return (!this.isAddressedToMe() && this.destinationMetaData.guid !=  null);
 		};
 		
 		this.jobCanBeExecutedByMe = function() {
-			console.log("jobCanBeExecutedByMe");
+			//console.log("jobCanBeExecutedByMe");
 			return (this.destinationMetaData.subsetMatch($sis.myMetaData));
 		}
 	}
 	
 	function deserialise_Notification(obj) {
-		console.log("deserialise_Notification");
+		//console.log("deserialise_Notification");
 		var retval = new Notification(null, null, null);
 		
 		for (var property in obj ) {
@@ -1041,7 +1042,7 @@ $sis = function(){
 	}	
 	
 	function Notification(jobGuid, metadata, payload) {
-		console.log("new Notification");
+		//console.log("new Notification");
 		this.jobGuid = jobGuid;
 		this.payload = payload;
 		this.destinationMetaData = metadata;
@@ -1052,15 +1053,15 @@ $sis = function(){
 	}
 	
 	function receivedJob(job) {
-		console.log("recieved a job : " + job.jobGuid + " from : " + job.originatingMetaData.guid + " to: " + job.destinationMetaData.guid);
+		//console.log("recieved a job : " + job.jobGuid + " from : " + job.originatingMetaData.guid + " to: " + job.destinationMetaData.guid);
 		processJob(job);
 	}
 	
 	function dispatchJobToOutgoingQueue(job) {
-		console.log("dispatchJobToOutgoingQueue");
+		//console.log("dispatchJobToOutgoingQueue");
 		if ( ! knownHosts.containsHostOtherThanMe() ) {
 			// show a warning message here
-			console.log("there are no other known hosts - placing job on outgoing queue, it may be there for some time...");
+			//console.log("there are no other known hosts - placing job on outgoing queue, it may be there for some time...");
 		}
 		
 		if ( job.destinationMetaData.guid == null ) { // find a exact host which can do the work...
@@ -1083,65 +1084,65 @@ $sis = function(){
 	
 	function dispatchJobToOtherHost(job) {
 		var retval = null;
-		console.log("dispatchJobToOtherHost");
+		//console.log("dispatchJobToOtherHost");
 		var newdestination = knownHosts.findCapableHostOtherThanOriginator(job);
 		if ( newdestination != null ) {
-			console.log("new destination found, setting and dispatching");
+			//console.log("new destination found, setting and dispatching");
 			job.destinationMetaData = newdestination;
 			dispatchJobToOutgoingQueue(job);
 		} else {
-			console.log("can't dispatch job...");
+			//console.log("can't dispatch job...");
 			retval = job;
 		}
 		return retval;
 	}
 	
 	function processJob(job) {
-		console.log("processing job");
+		//console.log("processing job");
 		if ( job.isAddressedToMe() ) {
-			console.log("job is directly addressed to me");
+			//console.log("job is directly addressed to me");
 			incommingQueue.push(job);
 		} else if (job.isAddressedToSomeoneElse() ) {
-			console.log("this job has been addressed to someone else - dispatching");
+			//console.log("this job has been addressed to someone else - dispatching");
 			dispatchJobToOutgoingQueue(job);
 		} else if ( job.jobCanBeExecutedByMe() ) {
-			console.log("job is not directly addressed to me, but I can deal with it");
+			//console.log("job is not directly addressed to me, but I can deal with it");
 			if ( incommingQueue.length < $sis.incommingJobThreshold ) {
-				console.log("job accepted");
+				//console.log("job accepted");
 				job.destinationMetaData = $sis.myMetaData;
 				incommingQueue.push(job);
 			} else if ( knownHosts.containsHostOtherThanMe() ) {
-				console.log("there are other hosts, checking to see if one of them can do it");
+				//console.log("there are other hosts, checking to see if one of them can do it");
 				var remainingJob = dispatchJobToOtherHost(job);
 				if ( remainingJob != null )  { // we couldn't hand this to anyone else.. deal with it...
-					console.log("no other host can do it, I can, taking it anyway...");
+					//console.log("no other host can do it, I can, taking it anyway...");
 					job.destinationMetaData = $sis.myMetaData;
 					incommingQueue.push(job);
 				} else {
-					console.log("the job was assigned to someone else");
+					//console.log("the job was assigned to someone else");
 				}
 				
 			} else { // we're full, but there is no other option, so we'll deal with it...
-				console.log("I don't know any other hosts, so I'll add this to my growing queue of work");
+				//console.log("I don't know any other hosts, so I'll add this to my growing queue of work");
 				incommingQueue.push(job);
 			}		
 		} else {
-			console.log("this task cannot be addressed by me, dispatching to someone else...");
+			//console.log("this task cannot be addressed by me, dispatching to someone else...");
 			///.. assign to a matching host.. or place on pending queue???
 			dispatchJobToOtherHost(job);
 		}
 	}
 	
 	function receivedNotification(data) {
-		console.log("receivedNotification :" + JSON.stringify(data));
+		//console.log("receivedNotification :" + JSON.stringify(data));
 		function reconstructNotification(data) {
-			console.log("reconstructNotification");
-			console.log("data.jobGuid:" + data.jobGuid);
-			console.log("data.destinationMetaData:" + JSON.stringify(data.destinationMetaData));
-			console.log("data.payload:" + data.payload);
+			//console.log("reconstructNotification");
+			//console.log("data.jobGuid:" + data.jobGuid);
+			//console.log("data.destinationMetaData:" + JSON.stringify(data.destinationMetaData));
+			//console.log("data.payload:" + data.payload);
 			var retval = new Notification(data.jobGuid, data.destinationMetaData, data.payload);
 			retval.originatingMetaData = data.originatingMetaData;
-			console.log("reconstructNotification will return :" + JSON.stringify(retval));
+			//console.log("reconstructNotification will return :" + JSON.stringify(retval));
 			return retval;			
 		}
 		var notification = reconstructNotification(data);
@@ -1149,16 +1150,16 @@ $sis = function(){
 	}
 
 	function processNotification(notificationQueue) { 
-		console.log("processNotification");
+		//console.log("processNotification");
 		var notification = notificationQueue.pop();
-		console.log("recevied a notification : " + JSON.stringify(notification));
+		//console.log("recevied a notification : " + JSON.stringify(notification));
 		
 		if (notification.isForMe() ) {
-			console.log("signalling notification.. ");
+			//console.log("signalling notification.. ");
 			notificationList.signal(notification);
 		}
 		else {
-			console.log("convert notification to message, remove url as it wa previously marked for me");
+			//console.log("convert notification to message, remove url as it wa previously marked for me");
 			var msg = {
 				type : messageTypeIs.NOTIFICATION,
 				message : notification
@@ -1169,16 +1170,16 @@ $sis = function(){
 	}
 
 	function processIncomingJob(incommingQueue) {
-		console.log("processIncomingJob");
+		//console.log("processIncomingJob");
 		var job = incommingQueue.pop();
 		job.execute();
 	}
 	
 	function processOutgoingItem(outgoingQueue) {
-		console.log("processOutgoingItem");
+		//console.log("processOutgoingItem");
 		var msg = outgoingQueue.pop();	
-		console.log("got a message to send.. ");
-		console.log("messge is for : " + JSON.stringify(msg.message.destinationMetaData));
+		//console.log("got a message to send.. ");
+		//console.log("messge is for : " + JSON.stringify(msg.message.destinationMetaData));
 		communicationManager.sendMessage(msg.message.destinationMetaData, msg.type, msg.message, function(success) {
 			switch(success)	{
 				case resultIs.OK:
@@ -1281,14 +1282,14 @@ $sis = function(){
 	return $sis;
 }();
 
-console.log("checking if we need to export $sis for node.js");
+//console.log("checking if we need to export $sis for node.js");
 var typeof_exports = typeof(exports);
 if ( typeof_exports != 'undefined' ) {
-	console.log("exporting $sis here");
-	console.log("function: " + typeof($sis.configureAsGateway) + " .");
+	//console.log("exporting $sis here");
+	//console.log("function: " + typeof($sis.configureAsGateway) + " .");
 	exports.$sis = $sis;
 } else {
-	console.log("not running in node.js");	
+	//console.log("not running in node.js");	
 }
 
 
