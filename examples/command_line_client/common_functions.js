@@ -160,7 +160,7 @@ function issue_request_to_update_db($sis) {
 			});
 		}
 		
-		function connect_create_collection_insert(data, responseHandler) {
+		function upsert_mongodb(data, responseHandler) {
 			console.log("connect_create_collection_insert");
 			var mongo = require('mongodb').MongoClient;
 			var url = "mongodb://localhost:27017/tempdb";
@@ -187,7 +187,7 @@ function issue_request_to_update_db($sis) {
 		console.log("making request for data from pi")
 		issue_get_temp_request().then( function (result) {
 			console.log("kicking off the insert...")
-			connect_create_collection_insert(result, responseHandler);
+			upsert_mongodb(result, responseHandler);
 		});
 		
 		return null;
