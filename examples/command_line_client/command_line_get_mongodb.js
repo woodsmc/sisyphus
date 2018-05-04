@@ -39,7 +39,6 @@ delay(2000).then(() => {
 			console.log("there was an error...");
 		} else {
 			console.log("the database has returned...");
-			
 			console.log("-----------------------------------------------------------------------");
 			console.log("error : " + result.error);
 			console.log("data : " + JSON.stringify(result.data));
@@ -47,6 +46,5 @@ delay(2000).then(() => {
 		process.exit(0);
 	});
 	console.log("task sent");
-	
 }); // end of delay
 

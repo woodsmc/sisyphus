@@ -696,7 +696,7 @@ $sis = function(){
 		}		
 		
 		function handleConnectionDisconnectAndInformOthers(metadata) {
-			//console.log( "  handleConnectionDisconnectAndInformOthers" );
+			//console.log( "  handleConnectionDisconnectAndInformOthers" );			
 			//todo: remove hosts associated with this socket / guid from our knownhosts and live connections
 			removeConnection(metadata);
 			knownHosts.deleteHost(metadata);
@@ -888,7 +888,7 @@ $sis = function(){
 							var str = "";
 							if ( host.isMe() ) str = " me!";
 							if ( host.guid == socketsMetaData.guid ) str = " the recently joined dude";
-							//console.log(host.guid + " is " + str );
+							console.log(host.guid + " is " + str );
 						}
 					});
 				});

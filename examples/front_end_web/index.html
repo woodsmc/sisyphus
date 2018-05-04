@@ -1,0 +1,68 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Example Application Showing PI Temp Values</title>
+	<link href="http://visjs.org/dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+	<style type="text/css">
+		body, html {
+			font-family: sans-serif;
+		}
+   </style>
+   
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>	
+	<script src="http://visjs.org/dist/vis.js"></script>	
+	<script>
+		function PlotPoint(x,y) {			
+			this.x = new Date( x ).toUTCString();
+			this.y = y;
+		}
+		
+		function transform_to_graph_array(data) {
+			var retval = new Array();
+			for( const item of data ) {
+				retval.push ( new PlotPoint(item.time, item.temp));
+			}
+			return retval;
+		}
+		
+		function refresh_graph() {
+			$.get( "/latest", function(data){
+				if ( data.error == null) {
+					var container = document.getElementById('visualization');
+					var rawdataset = transform_to_graph_array(data.data)		
+					var dataset = new vis.DataSet(rawdataset);
+					var options = {
+						start : rawdataset[0].x,
+						end: rawdataset[rawdataset.length - 1].x
+					};
+					console.log(JSON.stringify(options));
+					var graph2d = new vis.Graph2d(container, dataset, options);
+				}else{
+					console.log("error...");
+					alert("some error from Sisyphus..");
+				}				
+			});			
+		}
+		
+		// onload...
+		$(function() {
+			refresh_graph();			
+		});
+				
+	</script>
+	
+</head>
+<body>
+
+<div id="controls">
+	<button>Get Latest Temp</button>
+	<button onclick="refresh_graph();">Refresh Data</button>
+</div>
+
+<div id="grapharea">
+	<div id="visualization"></div>
+</div>
+
+</body>
+</html>
+
