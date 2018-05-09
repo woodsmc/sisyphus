@@ -2,10 +2,6 @@
 
 **TLDR:** Sisyphus is an actor based programming model, in which functions are sent across a network for execution. This approach was developed between 2011-2013 by Chris Woods who was a researcher at Intel Labs Europe. The work is published and introduced to readers here. This post explains the motivations which prompted the creation of Sisyphus. It highlights the many advantages the approach provides, before providing an open source working example, and outlining the recommended steps to take Sisyphus from concept to a working production implementation. 
 
-## Table of Contents
-
-[TOC]
-
 ## Introduction
 
 I have recently been reviewing my CV and LinkedIn profile, and in the process I've been thinking back to the work and research I've undertaken, some of which like "Sisyphus" appears to be of more interest now, then when I first worked on it, especially since the FaaS / Serverless concept didn't really exist when the research was taking place.
